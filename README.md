@@ -15,6 +15,7 @@ This plugin is focused on a simple and practical use case:
 - expose useful performance data for graphing and alerting (perfdata)
 
 It is intended for environments where standard Bareos job checks are too broad and you need a dedicated check for a single job, or when you want to keep track of job statistics such as file count, size, duration, and runtime age over time.
+
 ---
 
 ## Table of Contents
