@@ -15,6 +15,31 @@ This plugin is focused on a simple and practical use case:
 - expose useful performance data for graphing and alerting (perfdata)
 
 It is intended for environments where standard Bareos job checks are too broad and you need a dedicated check for a single job, or when you want to keep track of job statistics such as file count, size, duration, and runtime age over time.
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Status Mapping](#status-mapping)
+- [Requirements](#requirements)
+- [Bareos Catalog Permissions](#bareos-catalog-permissions)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Required arguments](#required-arguments)
+  - [Authentication](#authentication)
+  - [Connection options](#connection-options)
+  - [Job filtering options](#job-filtering-options)
+  - [State mapping options](#state-mapping-options)
+  - [Threshold options](#threshold-options)
+  - [Other options](#other-options)
+- [Examples](#examples)
+- [Example Output](#example-output)
+- [Performance Data](#performance-data)
+- [Icinga2 Example](#icinga2-example)
+- [Security Notes](#security-notes)
+- [Troubleshooting](#troubleshooting)
+- [Backlog / Ideas](#backlog--ideas)
+- [License](#license)
 
 ---
 
