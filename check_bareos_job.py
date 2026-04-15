@@ -564,7 +564,7 @@ def evaluate_single_result(row, args):
         f"{args.critical_min_size_bytes if args.critical_min_size_bytes is not None else ''}:"
         f"{args.critical_max_size_bytes if args.critical_max_size_bytes is not None else ''};; "
         f"duration_seconds={duration_seconds if duration_seconds is not None else 0}s;;;; "
-        f"age_seconds={age_seconds if age_seconds is not None else 0}s;;;;"
+        f"age_seconds={age_seconds if age_seconds is not None else 0}s;;{int(args.max_age_hours * 3600) if args.max_age_hours is not None else ''};;"
     )
 
     plugin_exit(code, message, perfdata)
