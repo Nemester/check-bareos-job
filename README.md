@@ -159,7 +159,9 @@ Typical connection parameters:
 
 ## Installation
 
-Clone the repository or copy the script to your monitoring plugins directory, for example:
+Clone the repository or copy the script to your monitoring plugins directory. Script has to be on the bareos director host or on any other host that can access the bareos database (see parameters for connection options).
+
+Location example:
 
 ```bash
 /usr/lib/nagios/plugins/check_bareos_job.py
