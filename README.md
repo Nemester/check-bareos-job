@@ -21,6 +21,7 @@ It is intended for environments where standard Bareos job checks are too broad a
 ## Table of Contents
 
 - [Features](#features)
+- [Images](#images)
 - [Status Mapping](#status-mapping)
 - [Requirements](#requirements)
 - [Bareos Catalog Permissions](#bareos-catalog-permissions)
@@ -41,6 +42,21 @@ It is intended for environments where standard Bareos job checks are too broad a
 - [Troubleshooting](#troubleshooting)
 - [Backlog / Ideas](#backlog--ideas)
 - [License](#license)
+
+
+---
+
+## Images
+
+### Example check (OK State)
+![Example Check OK](./doc/img/job-overview-ok.png)
+
+### Example check (WARN State)
+![Example Check WARNING](./doc/img/job-overview-warn.png)
+
+### Example perfdata
+![Example Perf Data](./doc/img/perfdata.png)
+
 
 ---
 
