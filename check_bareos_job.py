@@ -3,6 +3,8 @@
 #
 # check_bareos_job.py - Icinga2 / Nagios plugin for Bareos job monitoring
 #
+# Repository: https://github.com/Nemester/check-bareos-job
+#
 # Copyright (C) 2026 Manuel Sonder
 #
 # This plugin checks a specific Bareos job in the PostgreSQL catalog,
