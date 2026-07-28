@@ -16,8 +16,10 @@
 # Changelog
 # 2026-04-10   V1.0    Initial implementation
 # 2026-04-14   V1.1    Added parameters '--ok-states', '--warning-states' and
-#                      thresholds for nof files ('--warning-[min|max]-files' / '--critical-[min|max]-files') 
-#                      and backup size ('--warning-[min|max]-size-bytes' / '--critical-[min|max]-size-bytes')
+#                      thresholds for files ('--warning-[min|max]-files' / '--critical-[min|max]-files') 
+#                      and size ('--warning-[min|max]-size-bytes' / '--critical-[min|max]-size-bytes')
+# 2026-07-28   V1.2    Improved output: removed 'ok_states' and 'warning_states' and converted duration 
+#                      and age to more human friendly format
 
 import argparse
 import sys
@@ -27,7 +29,7 @@ import psycopg2
 import psycopg2.extras
 
 
-VERSION = "1.1"
+VERSION = "1.2"
 
 OK = 0
 WARNING = 1
@@ -394,8 +396,29 @@ def compute_duration_seconds(start_time, end_time):
     return max(0, int((end - start_time).total_seconds()))
 
 
-def format_state_list(states: set[str]) -> str:
-    return ",".join(sorted(states)) if states else "-"
+def human_timespan(seconds) -> str:
+    if seconds is None:
+        return "n/a"
+
+    seconds = int(seconds)
+    if seconds < 0:
+        seconds = 0
+
+    days, rem = divmod(seconds, 86400)
+    hours, rem = divmod(rem, 3600)
+    minutes, secs = divmod(rem, 60)
+
+    parts = []
+    if days:
+        parts.append(f"{days}d")
+    if hours:
+        parts.append(f"{hours}h")
+    if minutes:
+        parts.append(f"{minutes}m")
+    if secs or not parts:
+        parts.append(f"{secs}s")
+
+    return " ".join(parts)
 
 
 def apply_min_thresholds(value: int, warning_min, critical_min) -> int:
@@ -537,8 +560,8 @@ def evaluate_single_result(row, args):
 
     code = evaluate_row_code(row, args)
 
-    age_text = f"{age_seconds}s" if age_seconds is not None else "n/a"
-    duration_text = f"{duration_seconds}s" if duration_seconds is not None else "n/a"
+    age_text = human_timespan(age_seconds)
+    duration_text = human_timespan(duration_seconds)
     level_text = row["level"] or "n/a"
 
     threshold_messages = build_threshold_messages(job_files, job_bytes, args)
@@ -548,9 +571,7 @@ def evaluate_single_result(row, args):
         f"[{status_label(code)}] "
         f"Job '{row['name']}' latest run: state={job_status} ({format_status_text(job_status)}), "
         f"level={level_text}, files={job_files}, size={human_bytes(job_bytes)}, "
-        f"duration={duration_text}, age={age_text}, "
-        f"ok_states={format_state_list(args.ok_states)}, "
-        f"warning_states={format_state_list(args.warning_states)}"
+        f"duration={duration_text}, age={age_text}"
         f"{threshold_text}"
     )
 
@@ -595,9 +616,7 @@ def evaluate_multi_result(rows, worst_row, args):
         f"OK={ok_count}, WARNING={warning_count}, CRITICAL={critical_count}; "
         f"worst state={worst_row['jobstatus']} ({format_status_text(worst_row['jobstatus'])}), "
         f"latest matching run size={human_bytes(int(worst_row['jobbytes'] or 0))}, "
-        f"files={int(worst_row['jobfiles'] or 0)}, "
-        f"ok_states={format_state_list(args.ok_states)}, "
-        f"warning_states={format_state_list(args.warning_states)}"
+        f"files={int(worst_row['jobfiles'] or 0)}"
     )
 
     perfdata = (
