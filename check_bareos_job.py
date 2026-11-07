@@ -29,7 +29,7 @@ import psycopg2
 import psycopg2.extras
 
 
-VERSION = "1.2"
+VERSION = "1.3"
 
 OK = 0
 WARNING = 1
@@ -231,6 +231,12 @@ def parse_args():
         type=float,
         default=None,
         help="Return CRITICAL if the latest matching job is older than this many hours",
+    )
+    parser.add_argument(
+        "--warning-max-age-hours",
+        type=float,
+        default=None,
+        help="Return WARNING if the latest matching job is older than this many hours",
     )
     parser.add_argument(
         "--ok-states",
@@ -486,9 +492,14 @@ def evaluate_row_code(row, args) -> int:
     state_code = state_to_exit(job_status, args.ok_states, args.warning_states)
 
     age_code = OK
-    if args.max_age_hours is not None and age_seconds is not None:
-        if age_seconds > int(args.max_age_hours * 3600):
+    if age_seconds is not None:
+        if args.max_age_hours is not None and age_seconds > int(args.max_age_hours * 3600):
             age_code = CRITICAL
+        elif (
+            args.warning_max_age_hours is not None
+            and age_seconds > int(args.warning_max_age_hours * 3600)
+        ):
+            age_code = WARNING
 
     files_min_code = apply_min_thresholds(
         job_files,
@@ -587,7 +598,7 @@ def evaluate_single_result(row, args):
         f"{args.critical_min_size_bytes if args.critical_min_size_bytes is not None else ''}:"
         f"{args.critical_max_size_bytes if args.critical_max_size_bytes is not None else ''};; "
         f"duration_seconds={duration_seconds if duration_seconds is not None else 0}s;;;; "
-        f"age_seconds={age_seconds if age_seconds is not None else 0}s;;{int(args.max_age_hours * 3600) if args.max_age_hours is not None else ''};;"
+        f"age_seconds={age_seconds if age_seconds is not None else 0}s;{int(args.warning_max_age_hours * 3600) if args.warning_max_age_hours is not None else ''};{int(args.max_age_hours * 3600) if args.max_age_hours is not None else ''};;"
     )
 
     plugin_exit(code, message, perfdata)

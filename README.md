@@ -70,7 +70,7 @@ It is intended for environments where standard Bareos job checks are too broad a
   - `I` = Incremental
   - `D` = Differential
 - Restrict checks to jobs within the last _N_ days
-- Optional freshness check for the latest run with `--max-age-hours`
+- Optional freshness check for the latest run with `--warning-max-age-hours` / `--max-age-hours`
 - Configurable state mapping with:
   - `--ok-states`
   - `--warning-states`
@@ -234,6 +234,9 @@ Default password file:
   - `F` = Full
   - `I` = Incremental
   - `D` = Differential
+
+- `--warning-max-age-hours HOURS`  
+  Return `WARNING` if the latest matching job is older than the specified number of hours
 
 - `--max-age-hours HOURS`  
   Return `CRITICAL` if the latest matching job is older than the specified number of hours
@@ -500,6 +503,7 @@ object CheckCommand "bareos_job" {
     }
     "--days" = "$bareos_days$"
     "--level" = "$bareos_level$"
+    "--warning-max-age-hours" = "$bareos_warning_max_age_hours$"
     "--max-age-hours" = "$bareos_max_age_hours$"
     "--ok-states" = "$bareos_ok_states$"
     "--warning-states" = "$bareos_warning_states$"
