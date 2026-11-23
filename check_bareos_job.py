@@ -443,6 +443,19 @@ def apply_max_thresholds(value: int, warning_max, critical_max) -> int:
     return OK
 
 
+def perf_range(minimum, maximum) -> str:
+    """Nagios perfdata range for the OK region minimum..maximum.
+
+    Empty if neither bound is set (a bare ":" is not a valid range and is
+    rejected e.g. by nagflux), "max" for 0..max, "min:" for min..infinity.
+    """
+    if minimum is None and maximum is None:
+        return ""
+    if minimum is None:
+        return f"{maximum}"
+    return f"{minimum}:{'' if maximum is None else maximum}"
+
+
 def combine_codes(*codes: int) -> int:
     return max(codes) if codes else OK
 
@@ -588,15 +601,11 @@ def evaluate_single_result(row, args):
 
     perfdata = (
         f"files={job_files}c;"
-        f"{args.warning_min_files if args.warning_min_files is not None else ''}:"
-        f"{args.warning_max_files if args.warning_max_files is not None else ''};"
-        f"{args.critical_min_files if args.critical_min_files is not None else ''}:"
-        f"{args.critical_max_files if args.critical_max_files is not None else ''};; "
+        f"{perf_range(args.warning_min_files, args.warning_max_files)};"
+        f"{perf_range(args.critical_min_files, args.critical_max_files)};; "
         f"size_bytes={job_bytes}B;"
-        f"{args.warning_min_size_bytes if args.warning_min_size_bytes is not None else ''}:"
-        f"{args.warning_max_size_bytes if args.warning_max_size_bytes is not None else ''};"
-        f"{args.critical_min_size_bytes if args.critical_min_size_bytes is not None else ''}:"
-        f"{args.critical_max_size_bytes if args.critical_max_size_bytes is not None else ''};; "
+        f"{perf_range(args.warning_min_size_bytes, args.warning_max_size_bytes)};"
+        f"{perf_range(args.critical_min_size_bytes, args.critical_max_size_bytes)};; "
         f"duration_seconds={duration_seconds if duration_seconds is not None else 0}s;;;; "
         f"age_seconds={age_seconds if age_seconds is not None else 0}s;{int(args.warning_max_age_hours * 3600) if args.warning_max_age_hours is not None else ''};{int(args.max_age_hours * 3600) if args.max_age_hours is not None else ''};;"
     )
@@ -636,15 +645,11 @@ def evaluate_multi_result(rows, worst_row, args):
         f"warning_runs={warning_count}c;;;; "
         f"critical_runs={critical_count}c;;;; "
         f"files={int(worst_row['jobfiles'] or 0)}c;"
-        f"{args.warning_min_files if args.warning_min_files is not None else ''}:"
-        f"{args.warning_max_files if args.warning_max_files is not None else ''};"
-        f"{args.critical_min_files if args.critical_min_files is not None else ''}:"
-        f"{args.critical_max_files if args.critical_max_files is not None else ''};; "
+        f"{perf_range(args.warning_min_files, args.warning_max_files)};"
+        f"{perf_range(args.critical_min_files, args.critical_max_files)};; "
         f"size_bytes={int(worst_row['jobbytes'] or 0)}B;"
-        f"{args.warning_min_size_bytes if args.warning_min_size_bytes is not None else ''}:"
-        f"{args.warning_max_size_bytes if args.warning_max_size_bytes is not None else ''};"
-        f"{args.critical_min_size_bytes if args.critical_min_size_bytes is not None else ''}:"
-        f"{args.critical_max_size_bytes if args.critical_max_size_bytes is not None else ''};;"
+        f"{perf_range(args.warning_min_size_bytes, args.warning_max_size_bytes)};"
+        f"{perf_range(args.critical_min_size_bytes, args.critical_max_size_bytes)};;"
     )
 
     plugin_exit(worst_code, message, perfdata)
